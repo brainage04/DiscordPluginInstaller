@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "plugins": [
+    {
+      "name": "XEmbedFixer",
+      "repository": "https://github.com/brainage04/XEmbedFixer.git",
+      "directory": "xEmbedFixer.vesktop",
+      "platforms": ["revenge", "vencord"],
+      "default": true
+    },
+    {
+      "name": "PresenceWatcher",
+      "repository": "https://github.com/brainage04/PresenceWatcher.git",
+      "directory": "presenceWatcher.vesktop",
+      "platforms": ["revenge", "vencord"],
+      "default": true
+    },
+    {
+      "name": "ConversationExporter",
+      "repository": "https://github.com/brainage04/ConversationExporter.git",
+      "directory": "conversationExporter.vesktop",
+      "platforms": ["revenge", "vencord"],
+      "default": true
+    },
+    {
+      "name": "SharedPluginTemplate",
+      "repository": "https://github.com/brainage04/RevengeVencordPluginTemplate.git",
+      "directory": "sharedPluginTemplate.vesktop",
+      "platforms": ["revenge", "vencord"],
+      "default": false
+    }
+  ]
+}
