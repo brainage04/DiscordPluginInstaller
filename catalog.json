@@ -2,9 +2,9 @@
   "version": 1,
   "plugins": [
     {
-      "name": "XEmbedFixer",
-      "repository": "https://github.com/brainage04/XEmbedFixer.git",
-      "directory": "xEmbedFixer.vesktop",
+      "name": "SocialEmbedFixer",
+      "repository": "https://github.com/brainage04/SocialEmbedFixer.git",
+      "directory": "socialEmbedFixer.vesktop",
       "platforms": ["revenge", "vencord"],
       "default": true
     },
