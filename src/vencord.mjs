@@ -3,6 +3,7 @@ import { access, copyFile, cp, mkdir, readFile, rename, rm, writeFile } from "no
 import { homedir } from "node:os";
 import { dirname, resolve } from "node:path";
 
+import { knownNames, pluginDirectories } from "./catalog.mjs";
 import { delay, run, shellQuote } from "./process.mjs";
 
 export const VENCORD_RUNTIME_FILES = [
@@ -74,7 +75,9 @@ export async function buildVencordPlugins(sourceDirectory, operation, plugins, r
   if (operation === "uninstall") {
     for (const plugin of plugins) {
       console.log(`Removing ${plugin.name} source from Vencord`);
-      await rm(resolve(userplugins, plugin.directory), { recursive: true, force: true });
+      for (const directory of pluginDirectories(plugin)) {
+        await rm(resolve(userplugins, directory), { recursive: true, force: true });
+      }
     }
   } else {
     const repositoryDirectories = new Set(
@@ -88,6 +91,13 @@ export async function buildVencordPlugins(sourceDirectory, operation, plugins, r
     }
 
     for (const plugin of plugins) {
+      for (const former of plugin.renamedFrom ?? []) {
+        const destination = resolve(userplugins, former.directory);
+        if (await exists(destination)) {
+          console.log(`Removing ${former.name} source from Vencord (renamed to ${plugin.name})`);
+          await rm(destination, { recursive: true, force: true });
+        }
+      }
       console.log(`${operation === "install" ? "Installing" : "Reinstalling"} ${plugin.name} source in Vencord`);
       await copyPluginSource(repositories.get(plugin.name), resolve(userplugins, plugin.directory));
     }
@@ -147,7 +157,7 @@ function updatePluginSettings(settings, plugins, operation) {
   settings.plugins ??= {};
   for (const plugin of plugins) {
     if (operation === "uninstall") {
-      delete settings.plugins[plugin.name];
+      for (const name of knownNames(plugin)) delete settings.plugins[name];
     } else {
       settings.plugins[plugin.name] = {
         ...settings.plugins[plugin.name],

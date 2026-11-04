@@ -166,6 +166,41 @@ test("programmatically uninstalls selected Vencord plugin source", async () => {
   }
 });
 
+test("installing a renamed plugin replaces its source under the earlier name", async () => {
+  const root = await mkdtemp(resolve(tmpdir(), "vencord-rename-"));
+  const repository = resolve(root, "repository");
+  const userplugins = resolve(root, "workspace", "src", "userplugins");
+  const former = resolve(userplugins, "oldName.vesktop");
+  const unrelated = resolve(userplugins, "unrelated");
+  await Promise.all([
+    mkdir(resolve(repository, "common"), { recursive: true }),
+    mkdir(resolve(repository, "vencord"), { recursive: true }),
+    mkdir(former, { recursive: true }),
+    mkdir(unrelated, { recursive: true })
+  ]);
+  await Promise.all([
+    writeFile(resolve(repository, "index.ts"), "new"),
+    writeFile(resolve(former, "index.ts"), "old"),
+    writeFile(resolve(unrelated, "index.ts"), "preserve")
+  ]);
+  const plugin = {
+    name: "NewName",
+    directory: "newName.vesktop",
+    renamedFrom: [{ name: "OldName", directory: "oldName.vesktop" }]
+  };
+
+  try {
+    await buildVencordPlugins(resolve(root, "workspace"), "install", [plugin], new Map([[plugin.name, repository]]), {
+      run: async () => {}
+    });
+    assert.equal(await exists(former), false);
+    assert.equal(await readFile(resolve(userplugins, "newName.vesktop", "index.ts"), "utf8"), "new");
+    assert.equal(await exists(unrelated), true);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test("configures Vencord plugins without discarding existing settings", async () => {
   const root = await mkdtemp(resolve(tmpdir(), "vencord-settings-"));
   const file = resolve(root, "settings", "settings.json");
@@ -216,14 +251,17 @@ test("configures Vencord plugins without discarding existing settings", async ()
       format: "pretty"
     });
 
+    settings.plugins.OldExporter = { enabled: true };
+    await writeFile(file, JSON.stringify(settings));
     await configureVencordPlugins(
       ["local"],
-      [{ name: "ConversationExporter" }],
+      [{ name: "ConversationExporter", renamedFrom: [{ name: "OldExporter", directory: "old.vesktop" }] }],
       "uninstall",
       { file }
     );
     settings = JSON.parse(await readFile(file, "utf8"));
     assert.equal(settings.plugins.ConversationExporter, undefined);
+    assert.equal(settings.plugins.OldExporter, undefined);
     assert.deepEqual(settings.plugins.Unrelated, { enabled: true });
   } finally {
     await rm(root, { recursive: true, force: true });

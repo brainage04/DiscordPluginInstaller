@@ -3,7 +3,7 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { loadCatalog, selectPlugins } from "./catalog.mjs";
+import { loadCatalog, pluginDirectories, selectPlugins } from "./catalog.mjs";
 import { buildRevengePlugins, prepareRepositories } from "./repositories.mjs";
 import { manageRevengePlugins } from "./revenge.mjs";
 import {
@@ -163,7 +163,7 @@ async function main() {
     const targets = options.targets.length ? options.targets : ["local"];
     await prepareVencordWorkspace(source, { update: options.update });
     const managedDirectories = options.prune
-      ? catalog.filter(plugin => plugin.platforms.includes("vencord")).map(plugin => plugin.directory)
+      ? catalog.filter(plugin => plugin.platforms.includes("vencord")).flatMap(pluginDirectories)
       : [];
     const buildDirectory = await buildVencordPlugins(
       source,

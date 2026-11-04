@@ -15,11 +15,29 @@ export async function loadCatalog(path = resolve(ROOT, "catalog.json")) {
     if (!plugin.name || !plugin.repository || !plugin.directory || !Array.isArray(plugin.platforms)) {
       throw new Error(`Invalid plugin catalog entry: ${JSON.stringify(plugin)}`);
     }
-    if (names.has(plugin.name)) throw new Error(`Duplicate plugin name: ${plugin.name}`);
-    names.add(plugin.name);
+    plugin.renamedFrom ??= [];
+    if (!Array.isArray(plugin.renamedFrom)
+      || plugin.renamedFrom.some(former => !former?.name || !former.directory)) {
+      throw new Error(`Invalid renamedFrom in catalog entry: ${plugin.name}`);
+    }
+    for (const name of [plugin.name, ...plugin.renamedFrom.map(former => former.name)]) {
+      const key = name.toLowerCase();
+      if (names.has(key)) throw new Error(`Duplicate plugin name: ${name}`);
+      names.add(key);
+    }
   }
 
   return catalog.plugins;
+}
+
+/** Names the plugin is or was installed under; earlier names come from catalog renames. */
+export function knownNames(plugin) {
+  return [plugin.name, ...(plugin.renamedFrom ?? []).map(former => former.name)];
+}
+
+/** Vencord userplugin directories the plugin is or was installed in. */
+export function pluginDirectories(plugin) {
+  return [plugin.directory, ...(plugin.renamedFrom ?? []).map(former => former.directory)];
 }
 
 export function selectPlugins(catalog, platform, requested = []) {
@@ -31,7 +49,9 @@ export function selectPlugins(catalog, platform, requested = []) {
 
   const selected = [];
   for (const name of requested) {
-    const plugin = available.find(candidate => candidate.name.toLowerCase() === name.toLowerCase());
+    const plugin = available.find(candidate =>
+      knownNames(candidate).some(known => known.toLowerCase() === name.toLowerCase())
+    );
     if (!plugin) throw new Error(`Unknown ${platform} plugin: ${name}`);
     if (!selected.includes(plugin)) selected.push(plugin);
   }

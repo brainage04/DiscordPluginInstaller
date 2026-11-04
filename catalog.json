@@ -5,6 +5,7 @@
       "name": "SocialEmbedFixer",
       "repository": "https://github.com/brainage04/SocialEmbedFixer.git",
       "directory": "socialEmbedFixer.vesktop",
+      "renamedFrom": [{ "name": "XEmbedFixer", "directory": "xEmbedFixer.vesktop" }],
       "platforms": ["revenge", "vencord"],
       "default": true
     },

@@ -212,6 +212,21 @@ export async function manageRevengePlugins(operation, plugins, repositories, opt
     await requireManagerBridge(controller, pluginServer, bridgeSource);
 
     for (const plugin of plugins) {
+      // Revenge keys plugins by source URL, so an earlier name has to be removed by name.
+      const formerNames = (plugin.renamedFrom ?? []).map(former => former.name);
+      for (const name of formerNames) {
+        const result = await requestThroughBridge(controller, pluginServer, {
+          host: BRIDGE_HOST,
+          token: BRIDGE_TOKEN,
+          action: "uninstall",
+          name,
+          timeout: 15_000
+        });
+        if (result.uninstalled?.length) {
+          console.log(`Uninstalled ${name} (renamed to ${plugin.name}) through the Revenge manager bridge`);
+        }
+      }
+
       const result = await requestThroughBridge(controller, pluginServer, {
         host: BRIDGE_HOST,
         token: BRIDGE_TOKEN,
