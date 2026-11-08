@@ -3,7 +3,7 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { loadCatalog, pluginDirectories, selectPlugins } from "./catalog.mjs";
+import { loadCatalog, partitionRevengeSources, pluginDirectories, selectPlugins } from "./catalog.mjs";
 import { buildRevengePlugins, prepareRepositories } from "./repositories.mjs";
 import { manageRevengePlugins } from "./revenge.mjs";
 import {
@@ -22,6 +22,7 @@ const HELP = `Usage:
 Shared options:
   --plugins NAME[,NAME]       Plugins to manage; defaults to catalog defaults
   --repository NAME=PATH      Use a local repository for install or reinstall
+                              (Revenge: build and serve it instead of its published revengeSource)
   --cache PATH                Repository cache directory
   --catalog PATH              Alternate version-1 catalog
   --no-update                 Do not pull cached repositories
@@ -148,9 +149,12 @@ async function main() {
   const catalog = await loadCatalog(options.catalog && resolve(options.catalog));
   const plugins = selectPlugins(catalog, command, options.plugins);
   if (plugins.length === 0) throw new Error(`No ${command} plugins selected.`);
+  const { published, local } = command === "revenge" && operation !== "uninstall"
+    ? partitionRevengeSources(plugins, options.repositories)
+    : { published: new Map(), local: plugins };
   const repositories = operation === "uninstall"
     ? new Map()
-    : await prepareRepositories(plugins, {
+    : await prepareRepositories(local, {
       cacheDirectory: options.cache,
       overrides: options.repositories,
       update: options.update
@@ -191,10 +195,11 @@ async function main() {
     throw new Error("Revenge lifecycle operations accept one Android target at a time.");
   }
   if (operation !== "uninstall") {
-    await buildRevengePlugins(plugins, repositories);
+    await buildRevengePlugins(local, repositories);
   }
   await manageRevengePlugins(operation, plugins, repositories, {
     target: options.targets[0] || "phone",
+    publishedSources: published,
     bind: options.bind,
     publicUrl: options.publicUrl,
     port: options.port,

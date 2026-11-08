@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import test from "node:test";
 
-import { loadCatalog, selectPlugins } from "../src/catalog.mjs";
+import { loadCatalog, partitionRevengeSources, selectPlugins } from "../src/catalog.mjs";
 
 const catalog = [
   { name: "One", platforms: ["vencord", "revenge"], default: true },
@@ -70,4 +70,24 @@ test("rejects a renamedFrom entry without a directory", async () => {
     [entry("Current", { renamedFrom: [{ name: "Old" }] })],
     async file => await assert.rejects(loadCatalog(file), /Invalid renamedFrom in catalog entry: Current/)
   );
+});
+
+test("rejects a revengeSource that is not an https directory URL", async () => {
+  for (const revengeSource of ["http://example.com/p/", "https://example.com/p", "not a url"]) {
+    await withCatalog(
+      [entry("Current", { revengeSource })],
+      async file => await assert.rejects(loadCatalog(file), /Invalid revengeSource in catalog entry: Current/)
+    );
+  }
+});
+
+test("installs from the published source unless a local repository overrides it", () => {
+  const plugins = [
+    { name: "Published", revengeSource: "https://example.com/Published/" },
+    { name: "Overridden", revengeSource: "https://example.com/Overridden/" },
+    { name: "Unpublished" }
+  ];
+  const { published, local } = partitionRevengeSources(plugins, new Map([["Overridden", "/src/overridden"]]));
+  assert.deepEqual([...published], [["Published", "https://example.com/Published/"]]);
+  assert.deepEqual(local.map(plugin => plugin.name), ["Overridden", "Unpublished"]);
 });

@@ -197,13 +197,15 @@ export async function manageRevengePlugins(operation, plugins, repositories, opt
   const bridgeDirectory = await mkdtemp(join(tmpdir(), "discord-plugin-manager-bridge-"));
   const bridgeRepository = await prepareBridgeRepository(bridgeDirectory);
   const includesPluginSources = operation !== "uninstall";
+  const publishedSources = options.publishedSources ?? new Map();
   const servedPlugins = [
     { name: BRIDGE_NAME },
-    ...(includesPluginSources ? plugins : [])
+    ...(includesPluginSources ? plugins.filter(plugin => !publishedSources.has(plugin.name)) : [])
   ];
   const servedRepositories = new Map(includesPluginSources ? repositories : []);
   servedRepositories.set(BRIDGE_NAME, bridgeRepository);
   const pluginServer = await createPluginServer(servedPlugins, servedRepositories, options);
+  const sourceFor = plugin => publishedSources.get(plugin.name) ?? pluginServer.urls.get(plugin.name);
 
   try {
     const bridgeSource = pluginServer.urls.get(BRIDGE_NAME);
@@ -232,7 +234,7 @@ export async function manageRevengePlugins(operation, plugins, repositories, opt
         token: BRIDGE_TOKEN,
         action: operation,
         name: plugin.name,
-        source: includesPluginSources ? pluginServer.urls.get(plugin.name) : undefined,
+        source: includesPluginSources ? sourceFor(plugin) : undefined,
         timeout: 15_000,
       });
       if (operation === "uninstall") {
