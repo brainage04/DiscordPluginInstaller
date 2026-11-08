@@ -5,6 +5,7 @@
       "name": "SocialEmbedFixer",
       "repository": "https://github.com/brainage04/SocialEmbedFixer.git",
       "directory": "socialEmbedFixer.vesktop",
+      "revengeSource": "https://brainage04.github.io/SocialEmbedFixer/",
       "renamedFrom": [{ "name": "XEmbedFixer", "directory": "xEmbedFixer.vesktop" }],
       "platforms": ["revenge", "vencord"],
       "default": true
@@ -20,6 +21,7 @@
       "name": "ConversationExporter",
       "repository": "https://github.com/brainage04/ConversationExporter.git",
       "directory": "conversationExporter.vesktop",
+      "revengeSource": "https://brainage04.github.io/ConversationExporter/",
       "platforms": ["revenge", "vencord"],
       "default": true
     },
@@ -27,6 +29,7 @@
       "name": "SharedPluginTemplate",
       "repository": "https://github.com/brainage04/RevengeVencordPluginTemplate.git",
       "directory": "sharedPluginTemplate.vesktop",
+      "revengeSource": "https://brainage04.github.io/RevengeVencordPluginTemplate/",
       "platforms": ["revenge", "vencord"],
       "default": false
     }
