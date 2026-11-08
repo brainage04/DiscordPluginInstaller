@@ -224,7 +224,7 @@ test("configures Vencord plugins without discarding existing settings", async ()
     assert.deepEqual(
       await configureVencordPlugins(
         ["local"],
-        [{ name: "ConversationExporter" }, { name: "PresenceWatcher" }],
+        [{ name: "ConversationExporter" }, { name: "SocialEmbedFixer" }],
         "enable",
         { file }
       ),
@@ -235,7 +235,7 @@ test("configures Vencord plugins without discarding existing settings", async ()
       enabled: true,
       format: "pretty"
     });
-    assert.deepEqual(settings.plugins.PresenceWatcher, { enabled: true });
+    assert.deepEqual(settings.plugins.SocialEmbedFixer, { enabled: true });
     assert.deepEqual(settings.plugins.Unrelated, { enabled: true });
     assert.deepEqual(settings.notifications, { timeout: 5000 });
 

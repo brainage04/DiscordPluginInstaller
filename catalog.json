@@ -6,14 +6,6 @@
       "repository": "https://github.com/brainage04/SocialEmbedFixer.git",
       "directory": "socialEmbedFixer.vesktop",
       "revengeSource": "https://brainage04.github.io/SocialEmbedFixer/",
-      "renamedFrom": [{ "name": "XEmbedFixer", "directory": "xEmbedFixer.vesktop" }],
-      "platforms": ["revenge", "vencord"],
-      "default": true
-    },
-    {
-      "name": "PresenceWatcher",
-      "repository": "https://github.com/brainage04/PresenceWatcher.git",
-      "directory": "presenceWatcher.vesktop",
       "platforms": ["revenge", "vencord"],
       "default": true
     },
