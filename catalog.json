@@ -18,9 +18,9 @@
       "default": true
     },
     {
-      "name": "SharedPluginTemplate",
+      "name": "RevengeVencordPluginTemplate",
       "repository": "https://github.com/brainage04/RevengeVencordPluginTemplate.git",
-      "directory": "sharedPluginTemplate.vesktop",
+      "directory": "revengeVencordPluginTemplate.vesktop",
       "revengeSource": "https://brainage04.github.io/RevengeVencordPluginTemplate/",
       "platforms": ["revenge", "vencord"],
       "default": false
