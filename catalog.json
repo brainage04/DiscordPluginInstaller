@@ -18,6 +18,14 @@
       "default": true
     },
     {
+      "name": "AvatarDownloader",
+      "repository": "https://github.com/brainage04/AvatarDownloader.git",
+      "directory": "avatarDownloader.vesktop",
+      "revengeSource": "https://brainage04.github.io/AvatarDownloader/",
+      "platforms": ["revenge", "vencord"],
+      "default": true
+    },
+    {
       "name": "RevengeVencordPluginTemplate",
       "repository": "https://github.com/brainage04/RevengeVencordPluginTemplate.git",
       "directory": "revengeVencordPluginTemplate.vesktop",
